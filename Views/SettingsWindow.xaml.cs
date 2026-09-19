@@ -84,8 +84,8 @@ public partial class SettingsWindow : Window
         PART_ShowPanel.IsChecked = _editing.ShowPanelOnStartup;
 
         // 截图
-        PART_HotkeyPin.Text = _editing.HotkeyPin;
-        PART_HotkeyToggle.Text = _editing.HotkeyToggleVisibility;
+        PART_HotkeyPin.HotkeyValue = _editing.HotkeyPin;
+        PART_HotkeyToggle.HotkeyValue = _editing.HotkeyToggleVisibility;
         PART_CaptureCrosshair.IsChecked = _editing.CaptureCrosshair;
         PART_CaptureMagnifier.IsChecked = _editing.CaptureMagnifier;
         PART_CaptureIncludeCursor.IsChecked = _editing.CaptureIncludeCursor;
@@ -259,14 +259,15 @@ public partial class SettingsWindow : Window
 
     private void OnSave(object sender, RoutedEventArgs e)
     {
-        var error = ConfigStore.ValidateHotkey(PART_HotkeyPin.Text)
-            ?? ConfigStore.ValidateHotkey(PART_HotkeyToggle.Text);
+        // 用 HotkeyValue 而非 Text：控件空值时 Text 显示“(未设置)”，直接读 Text 会把提示文字当成热键存进去
+        var error = ConfigStore.ValidateHotkey(PART_HotkeyPin.HotkeyValue)
+            ?? ConfigStore.ValidateHotkey(PART_HotkeyToggle.HotkeyValue);
         if (error != null)
         {
             MessageBox.Show(this, error, "热键无效", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
-        if (string.IsNullOrWhiteSpace(PART_HotkeyPin.Text))
+        if (string.IsNullOrWhiteSpace(PART_HotkeyPin.HotkeyValue))
         {
             MessageBox.Show(this, "截图贴图热键不能为空。", "热键无效", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
@@ -281,8 +282,8 @@ public partial class SettingsWindow : Window
         _editing.ShowPanelOnStartup = PART_ShowPanel.IsChecked == true;
 
         // 截图
-        _editing.HotkeyPin = PART_HotkeyPin.Text.Trim();
-        _editing.HotkeyToggleVisibility = PART_HotkeyToggle.Text.Trim();
+        _editing.HotkeyPin = PART_HotkeyPin.HotkeyValue;
+        _editing.HotkeyToggleVisibility = PART_HotkeyToggle.HotkeyValue; // 可留空 = 不注册热键
         _editing.CaptureCrosshair = PART_CaptureCrosshair.IsChecked == true;
         _editing.CaptureMagnifier = PART_CaptureMagnifier.IsChecked == true;
         _editing.CaptureIncludeCursor = PART_CaptureIncludeCursor.IsChecked == true;
