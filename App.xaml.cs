@@ -320,6 +320,26 @@ LogCrash("SelfTest", new Exception(
                 await Task.Delay(400);
                 Shot(shots, null, "panel", Views.PanelWindow.ShowSingle, closeAfter: true);
                 Shot(shots, null, "settings", Views.SettingsWindow.ShowSingle, closeAfter: true);
+                // 截图设置页（含截图后行为开关）
+                Shot(shots, null, "capturepage", () =>
+                {
+                    Views.SettingsWindow.ShowSingle();
+                    var settings = Application.Current.Windows.OfType<Views.SettingsWindow>().First();
+                    var navField = typeof(Views.SettingsWindow)
+                        .GetField("PART_Nav", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (navField?.GetValue(settings) is System.Windows.Controls.ListBox nav)
+                        nav.SelectedIndex = 1;
+                }, closeAfter: true);
+                // 贴图设置页（自截图设置迁出的贴图类选项）
+                Shot(shots, null, "pinpage", () =>
+                {
+                    Views.SettingsWindow.ShowSingle();
+                    var settings = Application.Current.Windows.OfType<Views.SettingsWindow>().First();
+                    var navField = typeof(Views.SettingsWindow)
+                        .GetField("PART_Nav", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (navField?.GetValue(settings) is System.Windows.Controls.ListBox nav)
+                        nav.SelectedIndex = 2;
+                }, closeAfter: true);
                 // 翻译与提取文字页（OCR 语言下拉页）截图
                 Shot(shots, null, "ocrpage", () =>
                 {
@@ -328,7 +348,7 @@ LogCrash("SelfTest", new Exception(
                     var navField = typeof(Views.SettingsWindow)
                         .GetField("PART_Nav", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     if (navField?.GetValue(settings) is System.Windows.Controls.ListBox nav)
-                        nav.SelectedIndex = 3;
+                        nav.SelectedIndex = 4; // 翻译与提取文字
                 }, closeAfter: true);
                 // 系统托盘菜单页截图（验证单列 + 勾选）
                 Shot(shots, null, "traypage", () =>
@@ -338,7 +358,7 @@ LogCrash("SelfTest", new Exception(
                     var navField = typeof(Views.SettingsWindow)
                         .GetField("PART_Nav", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     if (navField?.GetValue(settings) is System.Windows.Controls.ListBox nav)
-                        nav.SelectedIndex = 4;
+                        nav.SelectedIndex = 5; // 系统托盘菜单
                 }, closeAfter: true);
                 LogCrash("SelfTest", new Exception("视觉自检截图：" + Environment.NewLine + string.Join(Environment.NewLine, shots)));
 
@@ -372,7 +392,7 @@ LogCrash("SelfTest", new Exception(
                 "translate" => "TranslateWindow",
                 "toolbar" => "AnnotationToolbarWindow",
                 "panel" => "PanelWindow",
-                "settings" or "traypage" or "ocrpage" => "SettingsWindow",
+                "settings" or "traypage" or "ocrpage" or "capturepage" or "pinpage" => "SettingsWindow",
                 _ => "",
             };
             Window? window = owner ?? Application.Current.Windows
@@ -540,7 +560,7 @@ LogCrash("SelfTest", new Exception(
         Hotkeys.Register(name, key, modifiers, action);
     }
 
-    /// <summary>截图（SETUNA 式：框选/点窗口松手即出贴图）。</summary>
+    /// <summary>截图（SETUNA 式：框选/点窗口松手即出贴图；“截图后只复制”开启时改为进剪贴板）。</summary>
     internal static async Task CapturePinAsync(bool hidePanelDuringCapture = false)
     {
         var panel = hidePanelDuringCapture ? Views.PanelWindow.VisibleInstance : null;
@@ -550,6 +570,14 @@ LogCrash("SelfTest", new Exception(
             var result = await CaptureService.CaptureAsync();
             if (result == null)
                 return;
+            if (Config.CaptureAfterCopy && !Config.CaptureAfterPin)
+            {
+                CopyBitmapToClipboard(result.Bitmap);
+                result.Bitmap.Dispose();
+                _trayIcon?.ShowBalloonTip("Pinshot", "截图已复制到剪贴板",
+                    Hardcodet.Wpf.TaskbarNotification.BalloonIcon.Info);
+                return;
+            }
             Pins.CreatePin(result.Bitmap, result.PhysicalBounds);
         }
         catch (Exception ex)
@@ -559,6 +587,24 @@ LogCrash("SelfTest", new Exception(
         finally
         {
             panel?.Show();
+        }
+    }
+
+    /// <summary>GDI 位图进剪贴板（复制后 DeleteObject 防 HBitmap 泄漏）。</summary>
+    private static void CopyBitmapToClipboard(System.Drawing.Bitmap bitmap)
+    {
+        var hBitmap = bitmap.GetHbitmap();
+        try
+        {
+            var source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                hBitmap, nint.Zero, Int32Rect.Empty,
+                System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+            source.Freeze();
+            Clipboard.SetImage(source);
+        }
+        finally
+        {
+            Core.Win32.DeleteObject(hBitmap);
         }
     }
 

@@ -40,16 +40,17 @@ public partial class SettingsWindow : Window
         // XAML 初始化期间 ListBox 设置 SelectedIndex 会提前触发本事件，
         // 此时右侧分区控件尚未创建，必须跳过，否则空引用导致设置窗口崩溃
         if (PART_SectionGeneral == null || PART_SectionCapture == null ||
-            PART_SectionMenu == null || PART_SectionTranslate == null ||
-            PART_SectionTray == null)
+            PART_SectionPin == null || PART_SectionMenu == null ||
+            PART_SectionTranslate == null || PART_SectionTray == null)
             return;
 
         var index = PART_Nav.SelectedIndex;
         PART_SectionGeneral.Visibility = index == 0 ? Visibility.Visible : Visibility.Collapsed;
         PART_SectionCapture.Visibility = index == 1 ? Visibility.Visible : Visibility.Collapsed;
-        PART_SectionMenu.Visibility = index == 2 ? Visibility.Visible : Visibility.Collapsed;
-        PART_SectionTranslate.Visibility = index == 3 ? Visibility.Visible : Visibility.Collapsed;
-        PART_SectionTray.Visibility = index == 4 ? Visibility.Visible : Visibility.Collapsed;
+        PART_SectionPin.Visibility = index == 2 ? Visibility.Visible : Visibility.Collapsed;
+        PART_SectionMenu.Visibility = index == 3 ? Visibility.Visible : Visibility.Collapsed;
+        PART_SectionTranslate.Visibility = index == 4 ? Visibility.Visible : Visibility.Collapsed;
+        PART_SectionTray.Visibility = index == 5 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private static readonly (string Key, string Label)[] TrayItemKeys =
@@ -88,12 +89,17 @@ public partial class SettingsWindow : Window
         PART_CaptureCrosshair.IsChecked = _editing.CaptureCrosshair;
         PART_CaptureMagnifier.IsChecked = _editing.CaptureMagnifier;
         PART_CaptureIncludeCursor.IsChecked = _editing.CaptureIncludeCursor;
+        // 截图后行为（互斥勾选）：转为贴图 / 只复制
+        PART_CaptureAfterPin.IsChecked = _editing.CaptureAfterPin || !_editing.CaptureAfterCopy;
+        PART_CaptureAfterCopy.IsChecked = _editing.CaptureAfterCopy && !_editing.CaptureAfterPin;
+        PART_CaptureAfterPin.Checked += (_, _) => PART_CaptureAfterCopy.IsChecked = false;
+        PART_CaptureAfterCopy.Checked += (_, _) => PART_CaptureAfterPin.IsChecked = false;
         PART_CompareWindow.IsChecked = _editing.TranslateShowCompareWindow;
         PART_CompareShowSource.IsChecked = _editing.CompareShowSource;
         PART_CompareShowTranslation.IsChecked = _editing.CompareShowTranslation;
         PART_TranslateOverlay.IsChecked = _editing.TranslateOverlay;
 
-        // 参考图
+        // 贴图设置
         PART_DoubleClick.Items.Add(new ComboBoxItem { Content = "收缩为小图", Tag = "Compact" });
         PART_DoubleClick.Items.Add(new ComboBoxItem { Content = "关闭贴图", Tag = "Close" });
         PART_DoubleClick.SelectedIndex = _editing.DoubleClickAction.Equals("Close", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
@@ -280,6 +286,10 @@ public partial class SettingsWindow : Window
         _editing.CaptureCrosshair = PART_CaptureCrosshair.IsChecked == true;
         _editing.CaptureMagnifier = PART_CaptureMagnifier.IsChecked == true;
         _editing.CaptureIncludeCursor = PART_CaptureIncludeCursor.IsChecked == true;
+        _editing.CaptureAfterPin = PART_CaptureAfterPin.IsChecked == true;
+        _editing.CaptureAfterCopy = PART_CaptureAfterCopy.IsChecked == true;
+        if (!_editing.CaptureAfterPin && !_editing.CaptureAfterCopy)
+            _editing.CaptureAfterPin = true; // 都不勾 → 按转为贴图处理
         _editing.TranslateShowCompareWindow = PART_CompareWindow.IsChecked == true;
         _editing.CompareShowSource = PART_CompareShowSource.IsChecked == true;
         _editing.CompareShowTranslation = PART_CompareShowTranslation.IsChecked == true;

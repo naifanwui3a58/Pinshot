@@ -16,6 +16,12 @@ public sealed class Config
     /// <summary>小图自动放大后再识别（提升小字识别率）。</summary>
     public bool OcrUpscale { get; set; } = true;
 
+    /// <summary>截图完成后转为贴图（与“只复制”互斥；两者都关时按转为贴图处理）。</summary>
+    public bool CaptureAfterPin { get; set; } = true;
+
+    /// <summary>截图完成后仅复制到剪贴板，不生成贴图（微信式）。</summary>
+    public bool CaptureAfterCopy { get; set; } = false;
+
     /// <summary>OCR 语言标签（如 zh-Hans-CN / en-US / ja），空 = 跟随系统用户语言。</summary>
     public string OcrLanguage { get; set; } = "";
 
