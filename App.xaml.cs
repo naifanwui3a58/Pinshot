@@ -362,24 +362,6 @@ LogCrash("SelfTest", new Exception(
                 }, closeAfter: true);
                 LogCrash("SelfTest", new Exception("视觉自检截图：" + Environment.NewLine + string.Join(Environment.NewLine, shots)));
 
-                // 托盘双列菜单实测：打开并记录实际尺寸（双列应一屏放下、无滚动条）
-                try
-                {
-                    var trayMenu = _trayIcon?.ContextMenu ?? throw new Exception("托盘菜单未创建");
-                    trayMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.AbsolutePoint;
-                    trayMenu.HorizontalOffset = 120;
-                    trayMenu.VerticalOffset = 120;
-                    trayMenu.IsOpen = true;
-                    await Task.Delay(400);
-                    LogCrash("SelfTest", new Exception(
-                        $"托盘双列菜单：{trayMenu.ActualWidth:F0}x{trayMenu.ActualHeight:F0}，条目 {trayMenu.Items.Count} 个"));
-                    trayMenu.IsOpen = false;
-                }
-                catch (Exception ex)
-                {
-                    LogCrash("SelfTest", new Exception($"托盘双列菜单自检失败：{ex.Message}"));
-                }
-
                 await Task.Delay(800);
                 foreach (var window in Application.Current.Windows.OfType<Window>().ToArray())
                 {
@@ -722,7 +704,7 @@ LogCrash("SelfTest", new Exception(
         // 主面板只能从右键菜单打开
     }
 
-    /// <summary>按当前配置重建托盘右键菜单（设置勾选变化后调用，立即生效）。双列布局，全部条目一屏可见、免滚轮。</summary>
+    /// <summary>按当前配置重建托盘右键菜单（设置勾选变化后调用，立即生效）。</summary>
     private static void RebuildTrayMenu()
     {
         if (_trayIcon == null)
@@ -814,31 +796,18 @@ LogCrash("SelfTest", new Exception(
                         System.Diagnostics.Process.Start("explorer.exe", ConfigStore.DirectoryPath));
                     break;
                 case "exit":
+                    AddSep();
                     AddItem(key, "退出", () => Current.Shutdown());
                     break;
             }
         }
 
-        // 双列布局：默认 ContextMenu 模板硬编码单列 StackPanel（设 ItemsPanel 不生效），
-        // 替换 ControlTemplate —— 纵向 WrapPanel 高度=半数条目，恰好两列、一屏放下免滚轮
-        // （条目再多时 WrapPanel 自动补列，仍不会出滚动条）
-        var rows = (int)Math.Ceiling(menu.Items.Count / 2.0);
-        var border = new FrameworkElementFactory(typeof(Border));
-        border.SetValue(Border.BackgroundProperty,
-            Current?.TryFindResource("WindowBackgroundBrush") as System.Windows.Media.Brush ?? System.Windows.Media.Brushes.White);
-        border.SetValue(Border.BorderBrushProperty,
-            Current?.TryFindResource("BorderSoftBrush") as System.Windows.Media.Brush ?? System.Windows.Media.Brushes.LightGray);
-        border.SetValue(Border.BorderThicknessProperty, new Thickness(1));
-        border.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
-        border.SetValue(Border.PaddingProperty, new Thickness(4));
-        var wrap = new FrameworkElementFactory(typeof(WrapPanel));
-        wrap.SetValue(WrapPanel.IsItemsHostProperty, true);
-        wrap.SetValue(WrapPanel.OrientationProperty, Orientation.Vertical);
-        wrap.SetValue(WrapPanel.ItemWidthProperty, 124.0);
-        wrap.SetValue(WrapPanel.ItemHeightProperty, 26.0);
-        wrap.SetValue(FrameworkElement.HeightProperty, rows * 26.0);
-        border.AppendChild(wrap);
-        menu.Template = new ControlTemplate { VisualTree = border };
+        void AddSep()
+        {
+            if (menu.Items.Count == 0 || menu.Items[^1] is Separator)
+                return;
+            menu.Items.Add(new Separator());
+        }
 
         _trayIcon.ContextMenu = menu;
     }
