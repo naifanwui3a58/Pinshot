@@ -574,9 +574,9 @@ LogCrash("SelfTest", new Exception(
             var result = await CaptureService.CaptureAsync();
             if (result == null)
                 return;
-            // 截图后行为（两项可共存）：转为贴图 + 复制到剪贴板；都不勾时按转为贴图兜底
-            var copy = Config.CaptureAfterCopy;
-            var pin = Config.CaptureAfterPin || !copy;
+            // 截图后行为（两项可共存）：转为贴图 + 复制到剪贴板；都不勾时按“只复制”兜底
+            var copy = Config.CaptureAfterCopy || !Config.CaptureAfterPin;
+            var pin = Config.CaptureAfterPin;
             if (copy)
                 CopyBitmapToClipboard(result.Bitmap);
             if (pin)

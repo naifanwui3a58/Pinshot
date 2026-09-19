@@ -89,9 +89,9 @@ public partial class SettingsWindow : Window
         PART_CaptureCrosshair.IsChecked = _editing.CaptureCrosshair;
         PART_CaptureMagnifier.IsChecked = _editing.CaptureMagnifier;
         PART_CaptureIncludeCursor.IsChecked = _editing.CaptureIncludeCursor;
-        // 截图后行为（两项可共存）：转为贴图 / 同时复制到剪贴板；都不勾时按转为贴图处理
-        PART_CaptureAfterPin.IsChecked = _editing.CaptureAfterPin || !_editing.CaptureAfterCopy;
-        PART_CaptureAfterCopy.IsChecked = _editing.CaptureAfterCopy;
+        // 截图后行为（两项可共存）：转为贴图 / 复制到剪贴板；都不勾时按“只复制”兜底
+        PART_CaptureAfterPin.IsChecked = _editing.CaptureAfterPin;
+        PART_CaptureAfterCopy.IsChecked = _editing.CaptureAfterCopy || !_editing.CaptureAfterPin;
         PART_CompareWindow.IsChecked = _editing.TranslateShowCompareWindow;
         PART_CompareShowSource.IsChecked = _editing.CompareShowSource;
         PART_CompareShowTranslation.IsChecked = _editing.CompareShowTranslation;
@@ -287,8 +287,6 @@ public partial class SettingsWindow : Window
         _editing.CaptureIncludeCursor = PART_CaptureIncludeCursor.IsChecked == true;
         _editing.CaptureAfterPin = PART_CaptureAfterPin.IsChecked == true;
         _editing.CaptureAfterCopy = PART_CaptureAfterCopy.IsChecked == true;
-        if (!_editing.CaptureAfterPin && !_editing.CaptureAfterCopy)
-            _editing.CaptureAfterPin = true; // 都不勾 → 按转为贴图处理
         _editing.TranslateShowCompareWindow = PART_CompareWindow.IsChecked == true;
         _editing.CompareShowSource = PART_CompareShowSource.IsChecked == true;
         _editing.CompareShowTranslation = PART_CompareShowTranslation.IsChecked == true;
