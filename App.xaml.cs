@@ -782,15 +782,6 @@ LogCrash("SelfTest", new Exception(
                             Pins.SaveAllNow(); // 关闭恢复时立即清掉落盘数据
                     });
                     break;
-                case "autostart":
-                    AddItem(key, "开机自启动", () =>
-                    {
-                        var enabled = IsAutoStartEnabled();
-                        SetAutoStart(!enabled);
-                        MessageBox.Show(!enabled ? "已开启开机自启动。" : "已关闭开机自启动。", "Pinshot",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
-                    });
-                    break;
                 case "configdir":
                     AddItem(key, "打开配置文件夹", () =>
                         System.Diagnostics.Process.Start("explorer.exe", ConfigStore.DirectoryPath));
@@ -816,7 +807,7 @@ LogCrash("SelfTest", new Exception(
     private static readonly string[] TrayDefaultOrder =
     [
         "capture", "translate", "extract", "panel", "fromfile", "toggle", "activate",
-        "closeall", "gallery_active", "gallery_dust", "gallery_clear", "options", "persist", "autostart",
+        "closeall", "gallery_active", "gallery_dust", "gallery_clear", "options", "persist",
         "configdir", "exit",
     ];
 
