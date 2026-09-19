@@ -11,7 +11,7 @@
         <AssemblyName>Pinshot</AssemblyName>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <ApplicationIcon>Resources\app.ico</ApplicationIcon>
-        <Version>0.2.0</Version>
+        <Version>0.3.0</Version>
         <Product>Pinshot</Product>
         <Description>Setuna 式截图贴图工具，附文字提取与翻译</Description>
     </PropertyGroup>
