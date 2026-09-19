@@ -27,8 +27,8 @@ internal static class NativeLoader
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Pinshot", "native");
 
-    /// <summary>释放 DLL 并按依赖顺序预加载。失败静默（Paddle 初始化失败时回退 Windows OCR）。</summary>
-    public static void ExtractAndPreload()
+    /// <summary>启动时仅把 DLL 释放到本地磁盘（不加载进进程，内存零占用）。失败静默。</summary>
+    public static void Extract()
     {
         try
         {
@@ -41,7 +41,7 @@ internal static class NativeLoader
                 using (var stream = assembly.GetManifestResourceStream(resourceName))
                 {
                     if (stream == null)
-                        return; // 包里没有（老版本）→ 跳过整个预加载
+                        return; // 包里没有（老版本）→ 跳过整个释放
                     if (!File.Exists(target) || new FileInfo(target).Length != stream.Length)
                     {
                         using var output = File.Create(target);
@@ -49,14 +49,21 @@ internal static class NativeLoader
                     }
                 }
             }
-
-            // 依赖顺序预加载：LoadLibrary 绝对路径后，进程内按裸名再加载直接命中
-            foreach (var dll in Dlls)
-                Win32.LoadLibraryW(Path.Combine(NativeDir, dll));
         }
         catch
         {
-            // 预加载失败不影响主流程：Paddle 初始化失败时自动回退 Windows OCR
+            // 释放失败不影响主流程：Paddle 初始化失败时自动回退 Windows OCR
         }
+    }
+
+    /// <summary>
+    /// 按依赖顺序预加载 native 库（首次创建引擎前调用；幂等，重复调用只是引用计数 +1）。
+    /// 用绝对路径 LoadLibrary 后，Paddle 按裸名加载依赖时直接命中已加载模块，
+    /// 彻底绕开单文件发布下 PATH/解压目录的搜索问题。
+    /// </summary>
+    public static void Preload()
+    {
+        foreach (var dll in Dlls)
+            Win32.LoadLibraryW(Path.Combine(NativeDir, dll));
     }
 }

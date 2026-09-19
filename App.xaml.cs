@@ -120,10 +120,10 @@ public partial class App : Application
         LogCrash("SelfTest", new Exception(
             $"托盘勾选实测：全部={trayAll} → 隐藏截图后={trayHidden} → 恢复后={trayRestored}"));
 
-        // PaddleOCR：先释放内嵌模型与 native 依赖并预加载，再后台预热（首次初始化 1-3 秒）
+        // PaddleOCR 懒加载：启动只把模型与 native 依赖释放到磁盘（不加载进进程，内存零占用）；
+        // 引擎推迟到首次识别才加载，空闲 5 分钟自动销毁释放内存
         Core.PaddleModels.EnsureExtracted();
-        Core.NativeLoader.ExtractAndPreload();
-        Core.PaddleOcrEngine.Warmup();
+        Core.NativeLoader.Extract();
 
         // OCR 语言包：未装齐时后台批量安装（单次 UAC 弹窗），装完后记录标记不再重复
         if (!Config.OcrPacksInstalled)

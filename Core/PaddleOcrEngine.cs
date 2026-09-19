@@ -6,37 +6,26 @@ namespace Pinshot.Core;
 
 /// <summary>
 /// PaddleOCR 本地引擎封装：离线、免费，中文/数字/英文识别率远高于 Windows OCR。
-/// 引擎首次初始化较慢（约 1-3 秒），进程内单例复用；识别走锁串行（底层非线程安全）。
-/// 初始化或识别失败自动回退 Windows OCR。
+/// 懒加载：引擎与 native 库推迟到首次识别才初始化（约 1-3 秒）；空闲 5 分钟自动销毁
+/// 释放模型权重与推理缓冲（native 库的文件映射保留，下次使用无需重新 LoadLibrary）。
+/// 识别走锁串行（底层非线程安全）；初始化或识别失败自动回退 Windows OCR。
 /// </summary>
 public static class PaddleOcrEngine
 {
+    private const int IdleUnloadMinutes = 5;
     private static readonly object Gate = new();
     private static PaddleOCRSharp.PaddleOCREngine? _engine;
     private static bool _failed;
-
-    /// <summary>后台预热引擎（启动时调用，避免首次识别卡顿）。</summary>
-    public static void Warmup()
-    {
-        if (_failed)
-            return;
-        _ = Task.Run(() =>
-        {
-            try
-            {
-                _ = GetEngine();
-            }
-            catch
-            {
-                // 预热失败：使用时再试一次，仍失败则回退 Windows OCR
-            }
-        });
-    }
+    private static DateTime _lastUsedUtc = DateTime.UtcNow;
+    private static readonly Timer IdleTimer = new(
+        _ => TryUnloadIdleEngine(), null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
 
     private static PaddleOCRSharp.PaddleOCREngine GetEngine()
     {
         if (_engine != null)
             return _engine;
+        // 首次创建引擎前，把 native 依赖按顺序加载进进程（幂等）
+        NativeLoader.Preload();
         // 检测参数调优：开启膨胀 + 降低检测框阈值，明显减少小字/短词漏识别（如 dll→d）
         var parameter = new PaddleOCRSharp.OCRParameter
         {
@@ -55,6 +44,25 @@ public static class PaddleOcrEngine
             keys = System.IO.Path.Combine(modelsDir, "ppocr_keys.txt"),
         };
         return _engine ??= new PaddleOCRSharp.PaddleOCREngine(modelConfig, parameter);
+    }
+
+    /// <summary>空闲超时销毁引擎，释放模型权重与推理缓冲；下次识别自动重新加载（锁保证不在识别中途销毁）。</summary>
+    private static void TryUnloadIdleEngine()
+    {
+        lock (Gate)
+        {
+            if (_engine == null || DateTime.UtcNow - _lastUsedUtc < TimeSpan.FromMinutes(IdleUnloadMinutes))
+                return;
+            try
+            {
+                _engine.Dispose();
+            }
+            catch
+            {
+                // 销毁失败不致命：保留实例，下次空闲再试
+            }
+            _engine = null;
+        }
     }
 
     /// <summary>是否可用（引擎能否初始化）。</summary>
@@ -88,6 +96,7 @@ public static class PaddleOcrEngine
         {
             var engine = GetEngine();
             var result = engine.DetectText(bytes);
+            _lastUsedUtc = DateTime.UtcNow;
             if (result?.TextBlocks == null || result.TextBlocks.Count == 0)
                 return [];
 
