@@ -1,0 +1,123 @@
+<Window
+    x:Class="Pinshot.Views.PinWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
+    Title="贴图"
+    MinWidth="1"
+    MinHeight="1"
+    AllowDrop="True"
+    AllowsTransparency="True"
+    Background="Transparent"
+    Focusable="True"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False"
+    Topmost="True"
+    WindowStartupLocation="Manual"
+    WindowStyle="None">
+    <StackPanel>
+        <Border
+            x:Name="PART_Surface"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top">
+            <Border.Effect>
+                <DropShadowEffect
+                    x:Name="PART_WindowEffect"
+                    BlurRadius="10"
+                    Direction="270"
+                    Opacity="0.35"
+                    RenderingBias="Performance"
+                    ShadowDepth="2" />
+            </Border.Effect>
+            <Grid>
+                <Image
+                    x:Name="PART_Image"
+                    gif:AnimationBehavior.RepeatBehavior="Forever"
+                    RenderOptions.BitmapScalingMode="HighQuality"
+                    Stretch="Fill" />
+                <!--  画笔标注层：画笔工具时显示  -->
+                <InkCanvas
+                    x:Name="PART_Ink"
+                    Background="Transparent"
+                    Visibility="Collapsed" />
+                <!--  已提交文本标注层（不参与命中测试，完成时统一烘焙）  -->
+                <Canvas
+                    x:Name="PART_AnnotationLayer"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed" />
+                <!--  要剪选区层：进入裁剪模式时显示  -->
+                <Canvas
+                    x:Name="PART_CropLayer"
+                    Background="Transparent"
+                    Visibility="Collapsed">
+                    <Border
+                        x:Name="PART_CropMask"
+                        BorderBrush="White"
+                        BorderThickness="1"
+                        Visibility="Collapsed">
+                        <Rectangle
+                            x:Name="PART_CropRect"
+                            Fill="Transparent"
+                            IsHitTestVisible="False"
+                            Stroke="#4D90FE"
+                            StrokeDashArray="4 2"
+                            StrokeThickness="1.5" />
+                    </Border>
+                </Canvas>
+                <!--  文本标注输入框（文本工具点击放置）  -->
+                <TextBox
+                    x:Name="PART_TextBox"
+                    MinWidth="40"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    FontSize="16"
+                    Visibility="Collapsed" />
+                <!--  译文覆盖层（图上原位翻译，微信式）  -->
+                <Canvas
+                    x:Name="PART_TranslateLayer"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed" />
+                <Border
+                    x:Name="PART_BorderMono"
+                    BorderBrush="#333333"
+                    BorderThickness="2"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed" />
+                <!--  收纳态描边  -->
+                <Border
+                    x:Name="PART_Frame"
+                    BorderBrush="#4D90FE"
+                    BorderThickness="1"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed" />
+                <!--  翻译中 loading 遮罩（不参与命中，拖拽/右键菜单不受影响）  -->
+                <Border
+                    x:Name="PART_LoadingOverlay"
+                    Background="#59FFFFFF"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed">
+                    <Ellipse
+                        x:Name="PART_Spinner"
+                        Width="36"
+                        Height="36"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        RenderTransformOrigin="0.5,0.5"
+                        Stroke="#3D7FFF"
+                        StrokeDashArray="20 8.5"
+                        StrokeDashCap="Round"
+                        StrokeEndLineCap="Round"
+                        StrokeStartLineCap="Round"
+                        StrokeThickness="4">
+                        <Ellipse.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform x:Name="PART_SpinnerScale" />
+                                <RotateTransform x:Name="PART_SpinnerRotate" />
+                            </TransformGroup>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                </Border>
+            </Grid>
+        </Border>
+    </StackPanel>
+</Window>

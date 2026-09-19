@@ -1,0 +1,78 @@
+<Window
+    x:Class="Pinshot.Views.CaptureOverlayWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="截图"
+    AllowsTransparency="False"
+    Background="Black"
+    Cursor="Cross"
+    ResizeMode="NoResize"
+    ShowActivated="True"
+    ShowInTaskbar="False"
+    Topmost="True"
+    WindowStartupLocation="Manual"
+    WindowStyle="None">
+    <Grid>
+        <Image
+            x:Name="PART_Backdrop"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Stretch="None" />
+
+        <!--  选区外暗化遮罩（四块拼合）  -->
+        <Rectangle x:Name="PART_DimTop" Fill="#7F000000" />
+        <Rectangle x:Name="PART_DimBottom" Fill="#7F000000" />
+        <Rectangle x:Name="PART_DimLeft" Fill="#7F000000" />
+        <Rectangle x:Name="PART_DimRight" Fill="#7F000000" />
+
+        <!--  选区边框  -->
+        <Canvas x:Name="PART_SelectionLayer" Background="Transparent">
+            <Rectangle
+                x:Name="PART_Highlight"
+                Fill="Transparent"
+                Stroke="#4D90FE"
+                StrokeThickness="1.5"
+                Visibility="Collapsed" />
+        </Canvas>
+
+        <!--  全屏十字光标  -->
+        <Line
+            x:Name="PART_CrossH"
+            Stroke="#88FFFFFF"
+            StrokeThickness="1"
+            StrokeDashArray="4 3"
+            Visibility="Collapsed" />
+        <Line
+            x:Name="PART_CrossV"
+            Stroke="#88FFFFFF"
+            StrokeThickness="1"
+            StrokeDashArray="4 3"
+            Visibility="Collapsed" />
+
+        <!--  放大镜  -->
+        <Border
+            x:Name="PART_Magnifier"
+            Width="140"
+            Height="156"
+            Background="#EE1F2430"
+            BorderBrush="#44FFFFFF"
+            BorderThickness="1"
+            CornerRadius="6"
+            Visibility="Collapsed">
+            <Grid Margin="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="140" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Image x:Name="PART_MagnifierImage" Grid.Row="0" Stretch="Fill" />
+                <TextBlock
+                    x:Name="PART_MagnifierText"
+                    Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="11"
+                    Foreground="White" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

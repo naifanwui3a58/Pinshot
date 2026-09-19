@@ -1,0 +1,143 @@
+<Window
+    x:Class="Pinshot.Views.TranslateWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="翻译"
+    Width="440"
+    MaxHeight="2400"
+    AllowsTransparency="True"
+    Background="Transparent"
+    MouseLeftButtonDown="OnDragWindow"
+    ShowInTaskbar="False"
+    SizeToContent="Height"
+    Topmost="True"
+    WindowStartupLocation="Manual"
+    WindowStyle="None">
+    <Window.Resources>
+        <!--  图标按钮（与提取文字窗口同款）  -->
+        <Style x:Key="IconButton" TargetType="Button">
+            <Setter Property="Width" Value="32" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Margin" Value="4,0,0,0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="PART_Bd"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="PART_Bd" Property="Background" Value="{StaticResource ControlHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="PART_Bd" Property="Background" Value="{StaticResource ControlPressedBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <!--  结构 = 提取文字窗口 + 底部译文区：上半部分即提取出的原文，下方分隔线 + 译文  -->
+    <Border
+        Background="{StaticResource WindowBackgroundBrush}"
+        BorderBrush="{StaticResource BorderSoftBrush}"
+        BorderThickness="1"
+        CornerRadius="10">
+        <Border.Effect>
+            <DropShadowEffect
+                BlurRadius="16"
+                Opacity="0.22"
+                RenderingBias="Performance"
+                ShadowDepth="3" />
+        </Border.Effect>
+        <DockPanel>
+            <!--  底部右侧：复制译文（与提取窗口的图标按钮行同款）  -->
+            <DockPanel Margin="10,2,10,10" DockPanel.Dock="Bottom" LastChildFill="False">
+                <Button
+                    x:Name="PART_CopyButton"
+                    Click="OnCopy"
+                    DockPanel.Dock="Right"
+                    Style="{StaticResource IconButton}"
+                    ToolTip="复制译文">
+                    <Path
+                        Width="16"
+                        Height="16"
+                        Data="M6,7 H13 V15 H6 Z M9.5,3 H16.5 V11.5"
+                        Stroke="#1D2129"
+                        StrokeThickness="1.5"
+                        Stretch="Uniform" />
+                </Button>
+            </DockPanel>
+
+            <!--  标题行  -->
+            <DockPanel Margin="14,10,10,4" DockPanel.Dock="Top">
+                <Button
+                    x:Name="PART_CloseButton"
+                    Width="28"
+                    Height="24"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="OnClose"
+                    Content="✕"
+                    Cursor="Hand"
+                    DockPanel.Dock="Right"
+                    FontSize="13"
+                    Foreground="{StaticResource TextSecondaryBrush}" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="13.5"
+                    Foreground="{StaticResource TextSecondaryBrush}"
+                    Text="翻译" />
+            </DockPanel>
+
+            <!--  原文（=提取文字窗口的正文，完全同款） + 译文（可按设置整体显隐）  -->
+            <StackPanel>
+                <TextBox
+                    x:Name="PART_SourceText"
+                    Margin="10,0,10,0"
+                    Padding="8,6"
+                    AcceptsReturn="True"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    FontSize="14"
+                    Foreground="{StaticResource TextPrimaryBrush}"
+                    IsReadOnly="True"
+                    TextChanged="OnTextChanged"
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Auto" />
+                <StackPanel x:Name="PART_TranslatedSection">
+                    <!--  分隔线 + 译文标记  -->
+                    <Border
+                        Height="1"
+                        Margin="10,8,10,0"
+                        Background="{StaticResource BorderSoftBrush}" />
+                    <TextBlock
+                        x:Name="PART_TranslatedLabel"
+                        Margin="12,4,0,2"
+                        FontSize="11.5"
+                        Foreground="{StaticResource TextSecondaryBrush}"
+                        Text="译文" />
+                    <TextBox
+                        x:Name="PART_TranslatedText"
+                        Margin="10,0,10,4"
+                        Padding="8,6"
+                        AcceptsReturn="True"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        FontSize="14"
+                        Foreground="{StaticResource TextPrimaryBrush}"
+                        IsReadOnly="True"
+                        TextChanged="OnTextChanged"
+                        TextWrapping="Wrap"
+                        VerticalScrollBarVisibility="Auto" />
+                </StackPanel>
+            </StackPanel>
+        </DockPanel>
+    </Border>
+</Window>

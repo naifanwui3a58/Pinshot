@@ -1,0 +1,132 @@
+<Window
+    x:Class="Pinshot.Views.ExtractPanelWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="提取文字"
+    Width="440"
+    MaxHeight="2400"
+    AllowsTransparency="True"
+    Background="Transparent"
+    MouseLeftButtonDown="OnDragWindow"
+    ShowInTaskbar="False"
+    SizeToContent="Height"
+    Topmost="True"
+    WindowStartupLocation="Manual"
+    WindowStyle="None">
+    <Window.Resources>
+        <!--  图标按钮（微信式：白色底、深色矢量图标、悬停淡灰）  -->
+        <Style x:Key="IconButton" TargetType="Button">
+            <Setter Property="Width" Value="32" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Margin" Value="4,0,0,0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="PART_Bd"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="PART_Bd" Property="Background" Value="{StaticResource ControlHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="PART_Bd" Property="Background" Value="{StaticResource ControlPressedBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <!--  白色卡片：高度=内容高度（SizeToContent），正文为可选中文本  -->
+    <Border
+        Background="{StaticResource WindowBackgroundBrush}"
+        BorderBrush="{StaticResource BorderSoftBrush}"
+        BorderThickness="1"
+        CornerRadius="10">
+        <Border.Effect>
+            <DropShadowEffect
+                BlurRadius="16"
+                Opacity="0.22"
+                RenderingBias="Performance"
+                ShadowDepth="3" />
+        </Border.Effect>
+        <DockPanel>
+            <!--  底部右侧：图标按钮（翻译 / 复制全部），微信式  -->
+            <DockPanel
+                DockPanel.Dock="Bottom"
+                Margin="10,2,10,10"
+                LastChildFill="False">
+                <Button
+                    x:Name="PART_TranslateButton"
+                    Click="OnTranslate"
+                    DockPanel.Dock="Right"
+                    Style="{StaticResource IconButton}"
+                    ToolTip="翻译">
+                    <Path
+                        Width="17"
+                        Height="17"
+                        Data="M12.87,15.07 L10.33,12.5 M10.36,12.47 C8.8,10.71 7.65,8.66 6.96,6.5 H9 V4 H3 V6 H4.95 C5.65,8.31 6.85,10.41 8.44,12.21 L3.34,17.31 L4.9,18.87 L10,13.77 L13.22,17 H21 V15 H14.17 Z M18.5,10 H20.5 L21,8.5 H23 L20,2 H18 L15,10 H17 L17.63,8 H19.91 Z"
+                        Fill="#1D2129"
+                        Stretch="Uniform" />
+                </Button>
+                <Button
+                    x:Name="PART_CopyAllButton"
+                    Click="OnCopyAll"
+                    DockPanel.Dock="Right"
+                    Style="{StaticResource IconButton}"
+                    ToolTip="复制全部">
+                    <Path
+                        Width="16"
+                        Height="16"
+                        Data="M6,7 H13 V15 H6 Z M9.5,3 H16.5 V11.5"
+                        Stroke="#1D2129"
+                        StrokeThickness="1.5"
+                        Stretch="Uniform" />
+                </Button>
+            </DockPanel>
+
+            <!--  标题行  -->
+            <DockPanel DockPanel.Dock="Top" Margin="14,10,10,4">
+                <Button
+                    x:Name="PART_CloseButton"
+                    Width="28"
+                    Height="24"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="OnClose"
+                    Content="✕"
+                    Cursor="Hand"
+                    DockPanel.Dock="Right"
+                    FontSize="13"
+                    Foreground="{StaticResource TextSecondaryBrush}" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="13.5"
+                    Foreground="{StaticResource TextSecondaryBrush}"
+                    Text="提取文字" />
+            </DockPanel>
+
+            <!--  正文：像 TXT 一样可选中的纯文本，高度=内容  -->
+            <TextBox
+                x:Name="PART_Text"
+                Margin="10,0,10,4"
+                MaxHeight="2000"
+                Padding="8,6"
+                AcceptsReturn="True"
+                Background="Transparent"
+                BorderThickness="0"
+                FontSize="14"
+                Foreground="{StaticResource TextPrimaryBrush}"
+                IsReadOnly="True"
+                TextChanged="OnTextChanged"
+                TextWrapping="Wrap"
+                VerticalScrollBarVisibility="Auto" />
+        </DockPanel>
+    </Border>
+</Window>

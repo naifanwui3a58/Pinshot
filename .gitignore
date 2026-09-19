@@ -1,0 +1,15 @@
+# 构建产物
+bin/
+obj/
+publish/
+
+# 本地工具状态
+.mimosa/
+
+# IDE / 用户配置
+*.user
+*.suo
+
+# 运行时生成的本地文件
+crash.log
+inference/

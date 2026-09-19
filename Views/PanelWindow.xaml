@@ -1,0 +1,63 @@
+<Window
+    x:Class="Pinshot.Views.PanelWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Pinshot"
+    SizeToContent="WidthAndHeight"
+    AllowsTransparency="True"
+    Background="Transparent"
+    MouseLeftButtonDown="OnDragWindow"
+    ResizeMode="NoResize"
+    ShowInTaskbar="True"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None">
+    <Border
+        Background="{StaticResource WindowBackgroundBrush}"
+        BorderBrush="{StaticResource BorderSoftBrush}"
+        BorderThickness="1"
+        CornerRadius="10">
+        <Border.Effect>
+            <DropShadowEffect
+                BlurRadius="18"
+                Opacity="0.22"
+                RenderingBias="Performance"
+                ShadowDepth="3" />
+        </Border.Effect>
+        <StackPanel Margin="18,12,18,16">
+            <DockPanel LastChildFill="False">
+                <Image
+                    Width="26"
+                    Height="26"
+                    DockPanel.Dock="Left"
+                    Source="pack://application:,,,/Resources/icon_128.png" />
+                <Button
+                    x:Name="PART_HideButton"
+                    Width="26"
+                    Height="26"
+                    Padding="0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    DockPanel.Dock="Right"
+                    FontSize="13"
+                    Foreground="{StaticResource TextSecondaryBrush}"
+                    Content="✕"
+                    ToolTip="收到托盘" />
+            </DockPanel>
+
+            <StackPanel
+                Margin="0,10,0,0"
+                HorizontalAlignment="Center"
+                Orientation="Horizontal">
+                <Button
+                    x:Name="PART_CaptureButton"
+                    Content="截取"
+                    Style="{StaticResource LauncherButtonStyle}" />
+                <Button
+                    x:Name="PART_OptionButton"
+                    Content="选项"
+                    Style="{StaticResource LauncherButtonStyle}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>
