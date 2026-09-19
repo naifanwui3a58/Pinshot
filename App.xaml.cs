@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -645,12 +646,11 @@ LogCrash("SelfTest", new Exception(
 
     private void InitTray()
     {
-        var buildTime = Environment.ProcessPath is { } path
-            ? File.GetLastWriteTime(path)
-            : DateTime.Now;
+        // 托盘提示展示正式版本号（取自 csproj 的 <Version>，发布新版本时改那里即可）
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
         _trayIcon = new Hardcodet.Wpf.TaskbarNotification.TaskbarIcon
         {
-            ToolTipText = $"Pinshot 截图贴图（build {buildTime:MM-dd HH:mm}）",
+            ToolTipText = $"Pinshot 截图贴图 v{version?.ToString(3)}",
             IconSource = LoadAppIcon(),
         };
         RebuildTrayMenu();
