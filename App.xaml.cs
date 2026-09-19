@@ -564,7 +564,7 @@ LogCrash("SelfTest", new Exception(
         Hotkeys.Register(name, key, modifiers, action);
     }
 
-    /// <summary>截图（SETUNA 式：框选/点窗口松手即出贴图；“截图后只复制”开启时改为进剪贴板）。</summary>
+    /// <summary>截图（SETUNA 式：框选/点窗口松手即出贴图；“复制到剪贴板”勾选时同时进剪贴板）。</summary>
     internal static async Task CapturePinAsync(bool hidePanelDuringCapture = false)
     {
         var panel = hidePanelDuringCapture ? Views.PanelWindow.VisibleInstance : null;
@@ -574,15 +574,21 @@ LogCrash("SelfTest", new Exception(
             var result = await CaptureService.CaptureAsync();
             if (result == null)
                 return;
-            if (Config.CaptureAfterCopy && !Config.CaptureAfterPin)
-            {
+            // 截图后行为（两项可共存）：转为贴图 + 复制到剪贴板；都不勾时按转为贴图兜底
+            var copy = Config.CaptureAfterCopy;
+            var pin = Config.CaptureAfterPin || !copy;
+            if (copy)
                 CopyBitmapToClipboard(result.Bitmap);
+            if (pin)
+            {
+                Pins.CreatePin(result.Bitmap, result.PhysicalBounds);
+            }
+            else
+            {
                 result.Bitmap.Dispose();
                 _trayIcon?.ShowBalloonTip("Pinshot", "截图已复制到剪贴板",
                     Hardcodet.Wpf.TaskbarNotification.BalloonIcon.Info);
-                return;
             }
-            Pins.CreatePin(result.Bitmap, result.PhysicalBounds);
         }
         catch (Exception ex)
         {
