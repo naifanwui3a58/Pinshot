@@ -94,7 +94,7 @@
                                 <CheckBox
                                     x:Name="PART_CaptureAfterCopy"
                                     Margin="0,12,0,0"
-                                    Content="截图后只复制" />
+                                    Content="截图后复制" />
                                 <CheckBox
                                     x:Name="PART_CaptureCrosshair"
                                     Margin="0,14,0,0"
