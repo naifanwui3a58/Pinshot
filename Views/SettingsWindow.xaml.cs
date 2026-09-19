@@ -89,9 +89,9 @@ public partial class SettingsWindow : Window
         PART_CaptureCrosshair.IsChecked = _editing.CaptureCrosshair;
         PART_CaptureMagnifier.IsChecked = _editing.CaptureMagnifier;
         PART_CaptureIncludeCursor.IsChecked = _editing.CaptureIncludeCursor;
-        // 截图后行为（两项可共存）：转为贴图 / 复制到剪贴板；都不勾时按“只复制”兜底
+        // 截图后行为（平级、可共存）：转为贴图 / 只复制；都不勾时按“只复制”兜底
         PART_CaptureAfterPin.IsChecked = _editing.CaptureAfterPin;
-        PART_CaptureAfterCopy.IsChecked = _editing.CaptureAfterCopy || !_editing.CaptureAfterPin;
+        PART_CaptureAfterCopy.IsChecked = _editing.CaptureAfterCopy;
         PART_CompareWindow.IsChecked = _editing.TranslateShowCompareWindow;
         PART_CompareShowSource.IsChecked = _editing.CompareShowSource;
         PART_CompareShowTranslation.IsChecked = _editing.CompareShowTranslation;

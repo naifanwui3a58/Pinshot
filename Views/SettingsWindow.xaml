@@ -93,8 +93,8 @@
                                     Content="截图后转为贴图" />
                                 <CheckBox
                                     x:Name="PART_CaptureAfterCopy"
-                                    Margin="24,8,0,0"
-                                    Content="同时复制到剪贴板" />
+                                    Margin="0,12,0,0"
+                                    Content="截图后只复制" />
                                 <CheckBox
                                     x:Name="PART_CaptureCrosshair"
                                     Margin="0,14,0,0"
