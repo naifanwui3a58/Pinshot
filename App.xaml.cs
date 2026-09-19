@@ -122,7 +122,7 @@ public partial class App : Application
             $"托盘勾选实测：全部={trayAll} → 隐藏截图后={trayHidden} → 恢复后={trayRestored}"));
 
         // PaddleOCR 懒加载：启动只把模型与 native 依赖释放到磁盘（不加载进进程，内存零占用）；
-        // 引擎推迟到首次识别才加载，空闲 5 分钟自动销毁释放内存
+        // 引擎推迟到首次识别才加载，空闲 1 分半自动销毁释放内存
         Core.PaddleModels.EnsureExtracted();
         Core.NativeLoader.Extract();
 

@@ -6,19 +6,19 @@ namespace Pinshot.Core;
 
 /// <summary>
 /// PaddleOCR 本地引擎封装：离线、免费，中文/数字/英文识别率远高于 Windows OCR。
-/// 懒加载：引擎与 native 库推迟到首次识别才初始化（约 1-3 秒）；空闲 5 分钟自动销毁
+/// 懒加载：引擎与 native 库推迟到首次识别才初始化（约 1-3 秒）；空闲 90 秒自动销毁
 /// 释放模型权重与推理缓冲（native 库的文件映射保留，下次使用无需重新 LoadLibrary）。
 /// 识别走锁串行（底层非线程安全）；初始化或识别失败自动回退 Windows OCR。
 /// </summary>
 public static class PaddleOcrEngine
 {
-    private const int IdleUnloadMinutes = 5;
+    private const double IdleUnloadSeconds = 90;
     private static readonly object Gate = new();
     private static PaddleOCRSharp.PaddleOCREngine? _engine;
     private static bool _failed;
     private static DateTime _lastUsedUtc = DateTime.UtcNow;
     private static readonly Timer IdleTimer = new(
-        _ => TryUnloadIdleEngine(), null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+        _ => TryUnloadIdleEngine(), null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
 
     private static PaddleOCRSharp.PaddleOCREngine GetEngine()
     {
@@ -51,7 +51,7 @@ public static class PaddleOcrEngine
     {
         lock (Gate)
         {
-            if (_engine == null || DateTime.UtcNow - _lastUsedUtc < TimeSpan.FromMinutes(IdleUnloadMinutes))
+            if (_engine == null || DateTime.UtcNow - _lastUsedUtc < TimeSpan.FromSeconds(IdleUnloadSeconds))
                 return;
             try
             {
