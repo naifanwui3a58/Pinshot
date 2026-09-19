@@ -529,8 +529,12 @@ LogCrash("SelfTest", new Exception(
 
     private static void Register(string name, string gestureText, Action action)
     {
+        // 留空 = 不使用该热键：反注册旧值，避免改了却一直不生效
         if (string.IsNullOrWhiteSpace(gestureText))
+        {
+            Hotkeys.Unregister(name);
             return;
+        }
         // 手动解析 "Ctrl+Alt+P" / "D1" / "F5" 等格式——支持任意单键作全局热键
         Key key;
         var modifiers = ModifierKeys.None;

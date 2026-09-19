@@ -53,7 +53,7 @@ public sealed class HotkeyBox : TextBox
         Background = new SolidColorBrush(Color.FromRgb(0xF0, 0xF6, 0xFF));
         BorderBrush = RecordingBrush;
         Foreground = HintBrush;
-        Text = "请按下快捷键...";
+        Text = "请按下快捷键（Backspace 清空 / Esc 取消）";
     }
 
     private void StopRecording()
